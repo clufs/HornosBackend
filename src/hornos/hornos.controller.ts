@@ -13,12 +13,15 @@ export class HornosController {
 
   @MessagePattern('horno/+/datos')
   handleDatos(@Payload() data: any, @Ctx() context: MqttContext) {
+    console.log({ context });
+
     const topic = context.getTopic();
+    // aca obtenemos el id del horno desde el topic
     const hornoId = parseInt(topic.split('/')[1]);
 
+    // nosotros obtenemos el la data del esp32
     console.log(`Datos recibidos del horno ${hornoId}:`, data);
 
-    // Aquí recibimos el JSON del ESP32
     return this.hornosService.register(hornoId, data.temp, data.hum);
   }
 }
