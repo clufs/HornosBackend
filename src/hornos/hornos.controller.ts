@@ -16,6 +16,8 @@ export class HornosController {
     const topic = context.getTopic();
     const hornoId = parseInt(topic.split('/')[1]);
 
+    console.log(`Datos recibidos del horno ${hornoId}:`, data);
+
     // Aquí recibimos el JSON del ESP32
     return this.hornosService.register(hornoId, data.temp, data.hum);
   }
