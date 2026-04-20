@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
   MessagePattern,
   Payload,
@@ -6,10 +6,14 @@ import {
   MqttContext,
 } from '@nestjs/microservices';
 import { HornosService } from './hornos.service';
+import { HornosAgentService } from './hornos-agent.service';
 
 @Controller('hornos')
 export class HornosController {
-  constructor(private readonly hornosService: HornosService) {}
+  constructor(
+    private readonly hornosService: HornosService,
+    private readonly hornosAgentService: HornosAgentService,
+  ) {}
 
   @MessagePattern('horno/+/datos')
   handleDatos(@Payload() data: any, @Ctx() context: MqttContext) {
@@ -23,5 +27,10 @@ export class HornosController {
     console.log(`Datos recibidos del horno ${hornoId}:`, data);
 
     return this.hornosService.register(hornoId, data.temp, data.hum);
+  }
+
+  @Get('chat')
+  async hablarConElHorno(@Query('mensaje') mensaje: string) {
+    return await this.hornosAgentService.preguntar(mensaje);
   }
 }

@@ -12,6 +12,7 @@ export class HornosService {
 
   async register(hornoId: number, temperatura: number, hayHumedad: boolean) {
     const nueva = this.lecturaRepo.create({ hornoId, temperatura, hayHumedad });
+
     return await this.lecturaRepo.save(nueva);
   }
 
