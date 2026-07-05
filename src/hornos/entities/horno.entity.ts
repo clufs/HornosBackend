@@ -16,6 +16,9 @@ export class Lectura {
   @Column('float')
   temperatura: number;
 
+  @Column('float', { nullable: true })
+  temperatura2: number;
+
   @Column()
   hayHumedad: boolean;
 

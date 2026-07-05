@@ -35,6 +35,7 @@ export class HornosService {
 
 async register(hornoId: number, data: {
   temperatura: number,
+  temperatura2?: number,
   hayHumedad: boolean,
   objetivo?: number,
   potencia?: number,
@@ -48,6 +49,7 @@ async register(hornoId: number, data: {
   const nueva = this.lecturaRepo.create({
     hornoId,
     temperatura:  data.temperatura,
+    temperatura2: data.temperatura2,
     hayHumedad:   data.hayHumedad,
     objetivo:     data.objetivo   ?? 0,
     potencia:     data.potencia   ?? 0,
@@ -65,11 +67,12 @@ async register(hornoId: number, data: {
 
   this.gateway.emitirLectura({
     temp_c:      data.temperatura,
+    temp2_c:     data.temperatura2,
     tasa_c_min:  0,
     fase_actual: fase,
     alert_flags: this.calcularAlertas(data.temperatura),
     soak_activo: data.activo ?? false,
-    temp_max:    data.temperatura,
+    temp_max:    Math.max(data.temperatura, data.temperatura2 ?? -Infinity),
     tiempo_s:    0,
   });
 
@@ -107,6 +110,7 @@ async obtenerHistorialPorFecha(
     const minutosTranscurridos = Math.round((tiempoActual - tiempoInicio) / 1000 / 60);
     return {
       temperatura: p.original.temperatura,
+      temperatura2: p.original.temperatura2,
       minutosDesdeInicio: minutosTranscurridos,
       timestamp: p.original.timestamp
     };
@@ -173,7 +177,7 @@ async obtenerHistorial(hornoId: number) {
       date_trunc('minute', timestamp) + 
       INTERVAL '30 seconds' * ROUND(EXTRACT(SECOND FROM timestamp) / 30)
     )
-    id, "hornoId", temperatura, "hayHumedad", timestamp
+    id, "hornoId", temperatura, temperatura2, "hayHumedad", timestamp
     FROM lectura
     WHERE "hornoId" = $1
     ORDER BY 

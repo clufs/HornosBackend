@@ -25,7 +25,8 @@ export class HornosController {
     console.log(`Datos recibidos del horno ${hornoId}:`, data);
 
     return this.hornosService.register(hornoId, {
-      temperatura: data.temp,
+      temperatura: data.t1 ?? data.temp,
+      temperatura2: data.t2,
       hayHumedad: data.hum ?? false,
       objetivo: data.objetivo ?? 0,
       potencia: data.potencia ?? 0,

@@ -41,6 +41,7 @@ export class HornoGateway
 
 export interface LecturaHorno {
   temp_c: number;
+  temp2_c?: number;
   tasa_c_min: number;
   fase_actual: string;
   alert_flags: number;
