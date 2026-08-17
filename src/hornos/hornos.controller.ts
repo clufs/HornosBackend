@@ -50,7 +50,9 @@ export class HornosController {
     let payload: any = { cmd: comando };
     if (programa) payload.programa = parseInt(programa);
 
-    this.mqttClient.emit(topic, payload);
+    this.mqttClient.emit(topic, payload).subscribe({
+      error: (err) => console.error('MQTT emit error', err),
+    });
     return { ok: true, topic, payload };
   }
 

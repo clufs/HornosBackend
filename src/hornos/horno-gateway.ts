@@ -56,21 +56,27 @@ export class HornoGateway
   ) {
     this.logger.log(`Perfil recibido de ${client.id}: ${data.segmentos.length} segmentos`);
     const payload = { cmd: 'iniciar', segmentos: data.segmentos };
-    this.mqttClient.emit('horno/1/cmd', payload);
+    this.mqttClient.emit('horno/1/cmd', payload).subscribe({
+      error: (err) => this.logger.error('MQTT emit error', err),
+    });
     return { ok: true };
   }
 
   @SubscribeMessage('detenerPerfil')
   handleDetenerPerfil(@ConnectedSocket() client: Socket) {
     this.logger.log(`Detener perfil pedido por ${client.id}`);
-    this.mqttClient.emit('horno/1/cmd', { cmd: 'detener' });
+    this.mqttClient.emit('horno/1/cmd', { cmd: 'detener' }).subscribe({
+      error: (err) => this.logger.error('MQTT emit error', err),
+    });
     return { ok: true };
   }
 
   @SubscribeMessage('emergencia')
   handleEmergencia(@ConnectedSocket() client: Socket) {
     this.logger.log(`Emergencia activada por ${client.id}`);
-    this.mqttClient.emit('horno/1/cmd', { cmd: 'emergencia' });
+    this.mqttClient.emit('horno/1/cmd', { cmd: 'emergencia' }).subscribe({
+      error: (err) => this.logger.error('MQTT emit error', err),
+    });
     return { ok: true };
   }
 }
