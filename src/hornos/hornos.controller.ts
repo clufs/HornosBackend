@@ -1,20 +1,20 @@
 import { Controller, Get, Post, Put, Delete, Param, Query, Body, Inject } from '@nestjs/common';
 import {
   MessagePattern,
-  ClientProxy,
   Payload,
   Ctx,
   MqttContext,
 } from '@nestjs/microservices';
 import { HornosService } from './hornos.service';
 import { HornosAgentService } from './hornos-agent.service';
+import { MqttPublisherService } from './mqtt-publisher.service';
 
 @Controller('hornos')
 export class HornosController {
   constructor(
   private readonly hornosService: HornosService,
   private readonly hornosAgentService: HornosAgentService,
-  @Inject('MQTT_CLIENT') private readonly mqttClient: ClientProxy,
+  private readonly mqttPublisher: MqttPublisherService,
   ) {}
 
   @MessagePattern('horno/+/datos')
@@ -50,9 +50,7 @@ export class HornosController {
     let payload: any = { cmd: comando };
     if (programa) payload.programa = parseInt(programa);
 
-    this.mqttClient.emit(topic, payload).subscribe({
-      error: (err) => console.error('MQTT emit error', err),
-    });
+    this.mqttPublisher.publish(topic, payload);
     return { ok: true, topic, payload };
   }
 

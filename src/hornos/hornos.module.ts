@@ -7,6 +7,7 @@ import { Lectura } from './entities/horno.entity';
 import { PerfilFuego } from './entities/perfil-fuego.entity';
 import { HornosAgentService } from './hornos-agent.service';
 import { HornoGateway } from './horno-gateway';
+import { MqttPublisherService } from './mqtt-publisher.service';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { HornoGateway } from './horno-gateway';
     ]),
   ],
   controllers: [HornosController],
-  providers: [HornosService, HornosAgentService, HornoGateway],
+  providers: [HornosService, HornosAgentService, HornoGateway, MqttPublisherService],
   exports: [TypeOrmModule],
 })
 export class HornosModule {}

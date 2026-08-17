@@ -11,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { MqttPublisherService } from './mqtt-publisher.service';
 
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -23,6 +24,7 @@ export class HornoGateway
 
   constructor(
     @Inject('MQTT_CLIENT') private readonly mqttClient: ClientProxy,
+    private readonly mqttPublisher: MqttPublisherService,
   ) {}
 
   afterInit() {
@@ -56,27 +58,21 @@ export class HornoGateway
   ) {
     this.logger.log(`Perfil recibido de ${client.id}: ${data.segmentos.length} segmentos`);
     const payload = { cmd: 'iniciar', segmentos: data.segmentos };
-    this.mqttClient.emit('horno/1/cmd', payload).subscribe({
-      error: (err) => this.logger.error('MQTT emit error', err),
-    });
+    this.mqttPublisher.publish('horno/1/cmd', payload);
     return { ok: true };
   }
 
   @SubscribeMessage('detenerPerfil')
   handleDetenerPerfil(@ConnectedSocket() client: Socket) {
     this.logger.log(`Detener perfil pedido por ${client.id}`);
-    this.mqttClient.emit('horno/1/cmd', { cmd: 'detener' }).subscribe({
-      error: (err) => this.logger.error('MQTT emit error', err),
-    });
+    this.mqttPublisher.publish('horno/1/cmd', { cmd: 'detener' });
     return { ok: true };
   }
 
   @SubscribeMessage('emergencia')
   handleEmergencia(@ConnectedSocket() client: Socket) {
     this.logger.log(`Emergencia activada por ${client.id}`);
-    this.mqttClient.emit('horno/1/cmd', { cmd: 'emergencia' }).subscribe({
-      error: (err) => this.logger.error('MQTT emit error', err),
-    });
+    this.mqttPublisher.publish('horno/1/cmd', { cmd: 'emergencia' });
     return { ok: true };
   }
 }
