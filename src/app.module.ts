@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HornosModule } from './hornos/hornos.module';
 import { Lectura } from './hornos/entities/horno.entity';
+import { PerfilFuego } from './hornos/entities/perfil-fuego.entity';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Lectura } from './hornos/entities/horno.entity';
       username: 'postgres.mhdmnbisvtetiixabwou',
       password: 'v2sPzMeItt1hV07m',
       database: 'postgres',
-      entities: [Lectura],
+      entities: [Lectura, PerfilFuego],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,

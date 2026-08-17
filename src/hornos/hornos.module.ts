@@ -4,12 +4,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { HornosService } from './hornos.service';
 import { HornosController } from './hornos.controller';
 import { Lectura } from './entities/horno.entity';
+import { PerfilFuego } from './entities/perfil-fuego.entity';
 import { HornosAgentService } from './hornos-agent.service';
 import { HornoGateway } from './horno-gateway';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Lectura]),
+    TypeOrmModule.forFeature([Lectura, PerfilFuego]),
     ClientsModule.register([
       {
         name: 'MQTT_CLIENT',

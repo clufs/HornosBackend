@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Query, Body, Inject } from '@nestjs/common';
 import {
   MessagePattern,
   ClientProxy,
@@ -26,7 +26,6 @@ export class HornosController {
 
     return this.hornosService.register(hornoId, {
       temperatura: data.t1 ?? data.temp,
-      temperatura2: data.t2,
       hayHumedad: data.hum ?? false,
       objetivo: data.objetivo ?? 0,
       potencia: data.potencia ?? 0,
@@ -51,7 +50,6 @@ export class HornosController {
     let payload: any = { cmd: comando };
     if (programa) payload.programa = parseInt(programa);
 
-    // Publicar al ESP via MQTT
     this.mqttClient.emit(topic, payload);
     return { ok: true, topic, payload };
   }
@@ -60,6 +58,7 @@ export class HornosController {
   async hablarConElHorno(@Query('mensaje') mensaje: string) {
     return await this.hornosAgentService.preguntar(mensaje);
   }
+
   @Get('historial/:hornoId')
   async obtenerHistorial(
     @Param('hornoId') hornoId: string,
@@ -71,5 +70,53 @@ export class HornosController {
       desde ? new Date(desde) : undefined,
       hasta ? new Date(hasta) : undefined,
     );
+  }
+
+  // ==================== PERFILES DE FUEGO ====================
+
+  @Post('perfiles')
+  async crearPerfil(@Body() body: {
+    hornoId: number;
+    nombre: string;
+    descripcion?: string;
+    segmentos: { target: number; rate: number; hold: number }[];
+    notas?: string;
+    material?: string;
+    tempMaxima?: number;
+    duracionEstimada?: number;
+  }) {
+    return this.hornosService.crearPerfil(body);
+  }
+
+  @Get('perfiles/:hornoId')
+  async listarPerfiles(@Param('hornoId') hornoId: string) {
+    return this.hornosService.listarPerfiles(parseInt(hornoId));
+  }
+
+  @Get('perfil/:id')
+  async obtenerPerfil(@Param('id') id: string) {
+    return this.hornosService.obtenerPerfil(parseInt(id));
+  }
+
+  @Put('perfil/:id')
+  async actualizarPerfil(
+    @Param('id') id: string,
+    @Body() body: Partial<{
+      nombre: string;
+      descripcion: string;
+      segmentos: { target: number; rate: number; hold: number }[];
+      notas: string;
+      material: string;
+      tempMaxima: number;
+      duracionEstimada: number;
+      favorito: boolean;
+    }>,
+  ) {
+    return this.hornosService.actualizarPerfil(parseInt(id), body);
+  }
+
+  @Delete('perfil/:id')
+  async eliminarPerfil(@Param('id') id: string) {
+    return this.hornosService.eliminarPerfil(parseInt(id));
   }
 }
