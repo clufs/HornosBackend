@@ -45,6 +45,8 @@ async register(hornoId: number, data: {
   potenciaW?: number,
   energiaWh?: number,
   costo?: number,
+  totalSegmentos?: number,
+  enMantencion?: boolean,
 }) {
   const nueva = this.lecturaRepo.create({
     hornoId,
@@ -74,6 +76,16 @@ async register(hornoId: number, data: {
     soak_activo: data.activo ?? false,
     temp_max:    Math.max(data.temperatura, data.temperatura2 ?? -Infinity),
     tiempo_s:    0,
+  });
+
+  this.gateway.emitirStatus({
+    ssr:             (data.potencia ?? 0) > 0,
+    setpoint:        data.objetivo ?? 0,
+    objetivo:        data.objetivo ?? 0,
+    segmento:        data.segmento ?? 1,
+    totalSegmentos:  data.totalSegmentos ?? 0,
+    activo:          data.activo ?? false,
+    enMantencion:    data.enMantencion ?? false,
   });
 
   return guardada;

@@ -36,6 +36,8 @@ export class HornosController {
       potenciaW: data.potencia_w ?? 0,
       energiaWh: data.energia_wh ?? 0,
       costo: data.costo ?? 0,
+      totalSegmentos: data.totalSegmentos ?? 0,
+      enMantencion: data.enMantencion ?? false,
     });
   }
 
