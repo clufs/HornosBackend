@@ -3,11 +3,11 @@ import * as mqtt from 'mqtt';
 
 @Injectable()
 export class MqttPublisherService implements OnModuleInit, OnModuleDestroy {
-  private client: mqtt.MqttClient;
+  private clientPromise: Promise<mqtt.MqttClient | null> = Promise.resolve(null);
   private logger = new Logger('MqttPublisher');
 
   onModuleInit() {
-    this.client = mqtt.connectAsync(
+    this.clientPromise = mqtt.connectAsync(
       'mqtts://bebc10bc889c481398edb22a24d7e32c.s1.eu.hivemq.cloud:8883',
       {
         username: 'nahuel',
@@ -23,15 +23,14 @@ export class MqttPublisherService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  onModuleDestroy() {
-    if (this.client) {
-      this.client.then(c => c?.end());
-    }
+  async onModuleDestroy() {
+    const client = await this.clientPromise;
+    if (client) client.end();
   }
 
   async publish(topic: string, payload: object): Promise<void> {
     try {
-      const client = await this.client;
+      const client = await this.clientPromise;
       if (!client || !client.connected) {
         this.logger.warn('MQTT no conectado, no se pudo publicar');
         return;
